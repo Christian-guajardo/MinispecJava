@@ -36,7 +36,7 @@ class XMLSerailizerTest {
 		transformer = tFactory.newTransformer();
 
 		DOMSource source = new DOMSource(document);
-		Result result = new StreamResult(new File("exemple0-out.xml"));
+		Result result = new StreamResult(new File("src/main/resources/exemple0-out.xml"));
 		transformer.transform(source, result);
 	}
 
@@ -56,7 +56,7 @@ class XMLSerailizerTest {
 		transformer = tFactory.newTransformer();
 
 		DOMSource source = new DOMSource(document);
-		Result result = new StreamResult(new File("exemple3-out.xml"));
+		Result result = new StreamResult(new File("src/main/resources/exemple3-out.xml"));
 		transformer.transform(source, result);
 	}
 	
@@ -75,7 +75,7 @@ class XMLSerailizerTest {
 	@Test
 	void test3() throws ParserConfigurationException, TransformerException {
 		XMLAnalyser analyser = new XMLAnalyser();
-		Model model = analyser.getModelFromFilenamed("Exemple1.xml");
+		Model model = analyser.getModelFromFilenamed("src/main/resources/Exemple1.xml");
 		XMLSerializer serializer = new XMLSerializer();
 		model.accept(serializer);
 		Document document = serializer.result();
@@ -83,14 +83,14 @@ class XMLSerailizerTest {
 		Transformer transformer = tFactory.newTransformer();
 
 		DOMSource source = new DOMSource(document);
-		Result result = new StreamResult(new File("exemple1-out.xml"));
+		Result result = new StreamResult(new File("src/main/resources/exemple1-out.xml"));
 		transformer.transform(source, result);
 	}
 	
 	@Test
 	void test4() throws ParserConfigurationException, TransformerException {
 		XMLAnalyser analyser = new XMLAnalyser();
-		Model model = analyser.getModelFromFilenamed("Exemple2.xml");
+		Model model = analyser.getModelFromFilenamed("src/main/resources/Exemple2.xml");
 		XMLSerializer serializer = new XMLSerializer();
 		model.accept(serializer);
 		Document document = serializer.result();
@@ -98,7 +98,7 @@ class XMLSerailizerTest {
 		Transformer transformer = tFactory.newTransformer();
 
 		DOMSource source = new DOMSource(document);
-		Result result = new StreamResult(new File("exemple2-out.xml"));
+		Result result = new StreamResult(new File("src/main/resources/exemple2-out.xml"));
 		transformer.transform(source, result);
 	}
 

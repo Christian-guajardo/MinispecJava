@@ -23,7 +23,7 @@ public class XMLSerializer extends Visitor {
 	Integer counter;
 	Document doc;
 	
-	Document result() {
+	public Document result() {
 		return this.doc;
 	}
 	
@@ -86,6 +86,25 @@ public class XMLSerializer extends Visitor {
 	}
 	@Override
 	public void visitAttribute(Attribute e) {
+		Element elem = this.doc.createElement("Attribute");
+		this.addIdToElement(elem);
 
+		Attr attrName = doc.createAttribute("name");
+		attrName.setValue(e.getName());
+		elem.setAttributeNode(attrName);
+
+		Attr attrType = doc.createAttribute("type");
+		attrType.setValue(e.getType());
+		elem.setAttributeNode(attrType);
+
+		if (!elements.isEmpty()) {
+			Element parentEntity = elements.get(elements.size() - 1);
+			Attr attrEntity = doc.createAttribute("entity");
+			attrEntity.setValue(parentEntity.getAttribute("id"));
+			elem.setAttributeNode(attrEntity);
+		}
+
+		this.root.appendChild(elem);
+		elements.add(elem);
 	}
 }

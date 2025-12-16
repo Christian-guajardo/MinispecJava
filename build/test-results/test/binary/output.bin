@@ -1,0 +1,11 @@
+model ;
+
+entity Balise ;
+  nom : String ;
+end_entity ;
+entity Satellite ;
+end_entity ;
+end model;
+
+2
+G<?xml version="1.0" encoding="UTF-8"?><Entity id="#5" name="Balise"/>

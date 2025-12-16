@@ -1,23 +1,25 @@
-import static org.junit.Assert.assertTrue;
+
 
 import XMLIO.XMLAnalyser;
 import org.junit.jupiter.api.Test;
 
 import metaModel.Model;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class XMLAnalyserTest {
 
 	@Test
 	void test1() {
 		XMLAnalyser analyser = new XMLAnalyser();
-		Model model = analyser.getModelFromFilenamed("Exemple1.xml");
+		Model model = analyser.getModelFromFilenamed("src/main/resources/Exemple1.xml");
 		assertTrue(model != null);
 		assertTrue(model.getEntities().size() == 0);
 	}
 	@Test
 	void test2() {
 		XMLAnalyser analyser = new XMLAnalyser();
-		Model model = analyser.getModelFromFilenamed("Exemple2.xml");
+		Model model = analyser.getModelFromFilenamed("src/main/resources/Exemple2.xml");
 		assertTrue(model != null);
 		System.out.println(model.getEntities().size());
 		assertTrue(model.getEntities().size() == 2);

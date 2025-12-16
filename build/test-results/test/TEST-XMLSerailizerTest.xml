@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="XMLSerailizerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-12-16T10:45:38" hostname="23HP038" time="0.056">
+  <properties/>
+  <testcase name="test0()" classname="XMLSerailizerTest" time="0.031"/>
+  <testcase name="test1()" classname="XMLSerailizerTest" time="0.005"/>
+  <testcase name="test2()" classname="XMLSerailizerTest" time="0.004"/>
+  <testcase name="test3()" classname="XMLSerailizerTest" time="0.007"/>
+  <testcase name="test4()" classname="XMLSerailizerTest" time="0.007"/>
+  <system-out><![CDATA[<?xml version="1.0" encoding="UTF-8"?><Entity id="#5" name="Balise"/>
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

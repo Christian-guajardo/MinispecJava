@@ -1,0 +1,7 @@
+model ;
+
+entity Satellite ;
+  nom : String ;
+  id : Integer ;
+end_entity ;
+end model;

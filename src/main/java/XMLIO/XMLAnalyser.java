@@ -46,11 +46,29 @@ public class XMLAnalyser {
 		String tag = e.getTagName();
 		if (tag.equals("Model")) {
 			result = modelFromElement(e);
-		} else  {
+		} else if (tag.equals("Entity")) {
 			result = entityFromElement(e);
-		} 
+		} else if (tag.equals("Attribute")) {
+			result = attributeFromElement(e);
+		} else {
+			throw new IllegalArgumentException("Tag XML inconnu : " + tag);
+		}
 		this.minispecIndex.put(id, result);
 		return result;
+	}
+	protected Attribute attributeFromElement(Element e) {
+		String name = e.getAttribute("name");
+		String type = e.getAttribute("type");
+		Attribute attribute = new Attribute();
+		attribute.setName(name);
+		attribute.setType(type);
+
+		Element parentXml = this.xmlElementIndex.get(e.getAttribute("entity"));
+		Entity entity = (Entity) minispecElementFromXmlElement(parentXml);
+
+		entity.getAttributes().add(attribute);
+
+		return attribute;
 	}
 
 	// alimentation du map des elements XML
