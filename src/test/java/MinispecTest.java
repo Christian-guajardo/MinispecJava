@@ -35,7 +35,7 @@ public class MinispecTest {
     @BeforeAll
     static void setUp() throws IOException {
 
-        xmlFile = new File(tempDir, "satellite.xml");
+        xmlFile = new File(tempDir, "satelite.xml");
         try (FileWriter writer = new FileWriter(xmlFile)) {
             writer.write(XML_CONTENT);
         }

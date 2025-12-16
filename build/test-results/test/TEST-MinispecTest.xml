@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="MinispecTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-12-16T10:45:38" hostname="23HP038" time="0.021">
+<testsuite name="MinispecTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-12-16T12:39:21" hostname="23HP038" time="0.039">
   <properties/>
-  <testcase name="testJavaVisitorFileGeneration()" classname="MinispecTest" time="0.016"/>
-  <testcase name="testModelStructureIntegrity()" classname="MinispecTest" time="0.004"/>
+  <testcase name="testJavaVisitorFileGeneration()" classname="MinispecTest" time="0.029"/>
+  <testcase name="testModelStructureIntegrity()" classname="MinispecTest" time="0.009"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

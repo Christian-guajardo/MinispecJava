@@ -61,8 +61,6 @@ public class Main {
             }
         }
 
-        System.out.println("\n=================================================");
         System.out.println(" TERMINÉ : " + count + " classe(s) Java générée(s).");
-        System.out.println("=================================================");
     }
 }
