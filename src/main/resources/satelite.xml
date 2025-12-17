@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Root model="#1">
     <Model id="#1"/>
 
@@ -5,4 +6,15 @@
 
     <Attribute id="#3" name="nom" type="String" entity="#2"/>
     <Attribute id="#4" name="id" type="Integer" entity="#2"/>
+
+    <Entity id="#5" name="Flotte" model="#1"/>
+
+    <Attribute id="#6" name="satellites" type="#40" entity="#5"/>
+
+    <List id="#40" typeElement="#12"/>
+
+    <Reference id="#12" name="Satellite"/>
+
+    <Attribute id="#7" name="leTeste" type="#41" entity="#5"/>
+    <Reference id="#41" name="Poke"/>
 </Root>

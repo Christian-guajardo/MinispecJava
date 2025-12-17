@@ -8,6 +8,9 @@ public class Entity implements MinispecElement {
 	private String name;
 	List<Attribute> attributes;
 
+	private Entity parent;
+	private Model model;
+
 	public Entity() {
 		this.attributes = new ArrayList<>();
 	}

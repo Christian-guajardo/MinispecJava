@@ -7,14 +7,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import metaModel.Attribute;
+import metaModel.*;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import metaModel.Entity;
-import metaModel.Model;
-import metaModel.Visitor;
 
 public class XMLSerializer extends Visitor {
 	List<Element> elements;
@@ -94,7 +90,7 @@ public class XMLSerializer extends Visitor {
 		elem.setAttributeNode(attrName);
 
 		Attr attrType = doc.createAttribute("type");
-		attrType.setValue(e.getType());
+		//attrType.setValue(e.getType());
 		elem.setAttributeNode(attrType);
 
 		if (!elements.isEmpty()) {
@@ -106,5 +102,27 @@ public class XMLSerializer extends Visitor {
 
 		this.root.appendChild(elem);
 		elements.add(elem);
+	}
+
+	@Override
+	public void visitSimpleType(SimpleType t) {
+
+	}
+
+
+
+	@Override
+	public void visitListType(ListType t) {
+
+	}
+
+	@Override
+	public void visitArrayType(ArrayType t) {
+
+	}
+
+	@Override
+	public void visitSetType(SetType t) {
+
 	}
 }

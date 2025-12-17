@@ -1,9 +1,6 @@
 package prettyPrinter;
 
-import metaModel.Attribute;
-import metaModel.Entity;
-import metaModel.Model;
-import metaModel.Visitor;
+import metaModel.*;
 
 public class PrettyPrinter extends Visitor {
 	private String result = "";
@@ -34,5 +31,27 @@ public class PrettyPrinter extends Visitor {
 	@Override
 	public void visitAttribute(Attribute e) {
 		result = result + "  " + e.getName() + " : " + e.getType() + " ;\n";
+	}
+
+	@Override
+	public void visitSimpleType(SimpleType t) {
+
+	}
+
+
+
+	@Override
+	public void visitListType(ListType t) {
+
+	}
+
+	@Override
+	public void visitArrayType(ArrayType t) {
+
+	}
+
+	@Override
+	public void visitSetType(SetType t) {
+
 	}
 }

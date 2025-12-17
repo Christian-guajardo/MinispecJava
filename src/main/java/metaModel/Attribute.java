@@ -1,8 +1,11 @@
 package metaModel;
 
-public class Attribute implements MinispecElement  {
-    String name;
-    String type;
+
+
+public class Attribute implements MinispecElement {
+    private String name;
+
+    private Type type;
 
     public String getName() {
         return name;
@@ -12,12 +15,12 @@ public class Attribute implements MinispecElement  {
         this.name = name;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String value) {
-        this.type = value;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     @Override

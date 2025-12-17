@@ -1,153 +1,215 @@
 package XMLIO;
 
 import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
-
-import metaModel.*;
 import metaModel.Entity;
+import org.w3c.dom.*;
+import metaModel.*;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class XMLAnalyser {
 
-	// Les clés des 2 Map sont les id 
-	
-	// Map des instances de la syntaxe abstraite (metamodel)
+
 	protected Map<String, MinispecElement> minispecIndex;
-	// Map des elements XML
+
 	protected Map<String, Element> xmlElementIndex;
 
+
+	protected Map<String, Entity> nameToEntityIndex;
+
+	protected List<ReferenceType> pendingReferences;
+
 	public XMLAnalyser() {
-		this.minispecIndex = new HashMap<String, MinispecElement>();
-		this.xmlElementIndex = new HashMap<String, Element>();
+		this.minispecIndex = new HashMap<>();
+		this.xmlElementIndex = new HashMap<>();
+		this.nameToEntityIndex = new HashMap<>();
+		this.pendingReferences = new ArrayList<>();
 	}
+
+	public Model getModelFromDocument(Document document) {
+
+		this.minispecIndex.clear();
+		this.xmlElementIndex.clear();
+		this.nameToEntityIndex.clear();
+		this.pendingReferences.clear();
+
+		Element root = document.getDocumentElement();
+
+
+		indexXmlIds(root);
+
+
+		String modelId = root.getAttribute("model");
+		if (modelId.isEmpty()) modelId = findModelIdInChildren(root);
+
+
+		Model model = (Model) getOrCreateMinispecElement(modelId);
+
+		instantiateAllElements();
+		resolveReferences();
+
+		return model;
+	}
+
+
+	protected void indexXmlIds(Element root) {
+		NodeList nodes = root.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node n = nodes.item(i);
+			if (n instanceof Element) {
+				Element el = (Element) n;
+				String id = el.getAttribute("id");
+				if (id != null && !id.isEmpty()) {
+					this.xmlElementIndex.put(id, el);
+				}
+			}
+		}
+	}
+
+
+	private void instantiateAllElements() {
+		for (String id : xmlElementIndex.keySet()) {
+			getOrCreateMinispecElement(id);
+		}
+	}
+
+
+	protected MinispecElement getOrCreateMinispecElement(String id) {
+		if (id == null || id.isEmpty()) return null;
+
+		if (this.minispecIndex.containsKey(id)) {
+			return this.minispecIndex.get(id);
+		}
+
+
+		Element e = this.xmlElementIndex.get(id);
+		if (e == null) return null;
+
+
+		MinispecElement result = null;
+		String tag = e.getTagName();
+
+		switch (tag) {
+			case "Model":     result = modelFromElement(e); break;
+			case "Entity":    result = entityFromElement(e); break;
+			case "Attribute": result = attributeFromElement(e); break;
+			case "List":      result = listFromElement(e); break;
+			case "Reference": result = referenceFromElement(e); break;
+			case "Array":     result = arrayFromElement(e); break;
+			// SetType, etc.
+			default: return null;
+		}
+
+
+		if (result != null) {
+			this.minispecIndex.put(id, result);
+		}
+
+		return result;
+	}
+
+
 
 	protected Model modelFromElement(Element e) {
 		return new Model();
 	}
-	
+
 	protected Entity entityFromElement(Element e) {
-		String name = e.getAttribute("name");
 		Entity entity = new Entity();
-		entity.setName(name);
-		Model model = (Model) minispecElementFromXmlElement(this.xmlElementIndex.get(e.getAttribute("model")));
-		model.addEntity(entity);
+		entity.setName(e.getAttribute("name"));
+		this.nameToEntityIndex.put(entity.getName(), entity);
+
+
+		String modelId = e.getAttribute("model");
+		MinispecElement m = getOrCreateMinispecElement(modelId);
+		if (m instanceof Model) {
+			((Model) m).getEntities().add(entity);
+		}
 		return entity;
 	}
 
-	protected MinispecElement minispecElementFromXmlElement(Element e) {
-		String id = e.getAttribute("id");
-		MinispecElement result = this.minispecIndex.get(id);
-		if (result != null) return result;
-		String tag = e.getTagName();
-		if (tag.equals("Model")) {
-			result = modelFromElement(e);
-		} else if (tag.equals("Entity")) {
-			result = entityFromElement(e);
-		} else if (tag.equals("Attribute")) {
-			result = attributeFromElement(e);
-		} else {
-			throw new IllegalArgumentException("Tag XML inconnu : " + tag);
-		}
-		this.minispecIndex.put(id, result);
-		return result;
-	}
 	protected Attribute attributeFromElement(Element e) {
-		String name = e.getAttribute("name");
-		String type = e.getAttribute("type");
-		Attribute attribute = new Attribute();
-		attribute.setName(name);
-		attribute.setType(type);
+		Attribute attr = new Attribute();
+		attr.setName(e.getAttribute("name"));
 
-		Element parentXml = this.xmlElementIndex.get(e.getAttribute("entity"));
-		Entity entity = (Entity) minispecElementFromXmlElement(parentXml);
 
-		entity.getAttributes().add(attribute);
+		String typeRaw = e.getAttribute("type");
+		attr.setType(resolveTypeOrRef(typeRaw));
 
-		return attribute;
+
+		String entityId = e.getAttribute("entity");
+		MinispecElement parent = getOrCreateMinispecElement(entityId);
+
+		if (parent instanceof Entity) {
+			((Entity)parent).getAttributes().add(attr);
+		}
+
+		return attr;
 	}
 
-	// alimentation du map des elements XML
-	protected void firstRound(Element el) {
-		NodeList nodes = el.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node n = nodes.item(i);
-			if (n instanceof Element) {
-				Element child = (Element) n;
-				String id = child.getAttribute("id");
-				this.xmlElementIndex.put(id, child);
+	protected ListType listFromElement(Element e) {
+		String typeRef = e.getAttribute("typeElement");
+		return new ListType(resolveTypeOrRef(typeRef));
+	}
+
+	protected ArrayType arrayFromElement(Element e) {
+		String typeRef = e.getAttribute("typeElement");
+		ArrayType arr = new ArrayType(resolveTypeOrRef(typeRef));
+		if(e.hasAttribute("size")) {
+			try { arr.setSizeMax(Integer.parseInt(e.getAttribute("size"))); } catch(Exception ex){}
+		}
+		return arr;
+	}
+
+	protected ReferenceType referenceFromElement(Element e) {
+		String targetName = e.getAttribute("name");
+		ReferenceType ref = new ReferenceType(targetName);
+
+		this.pendingReferences.add(ref);
+		return ref;
+	}
+
+
+
+	private Type resolveTypeOrRef(String raw) {
+		if (raw.startsWith("#")) {
+			return (Type) getOrCreateMinispecElement(raw);
+		} else {
+
+			return new SimpleType(raw);
+		}
+	}
+
+	private void resolveReferences() {
+		System.out.println("-> Vérification des " + pendingReferences.size() + " références...");
+		for (ReferenceType ref : pendingReferences) {
+			Entity target = nameToEntityIndex.get(ref.getName());
+			if (target != null) {
+				ref.resolve(target);
+			} else {
+				System.err.println(" [ERREUR] Info: Référence inconnue : " + ref.getName());
 			}
 		}
 	}
 
-	// alimentation du map des instances de la syntaxe abstraite (metamodel)
-	protected void secondRound(Element el) {
-		NodeList nodes = el.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node n = nodes.item(i);
-			if (n instanceof Element) {
-				minispecElementFromXmlElement((Element)n);
+	private String findModelIdInChildren(Element root) {
+		NodeList nodes = root.getChildNodes();
+		for(int i=0; i<nodes.getLength(); i++) {
+			if(nodes.item(i) instanceof Element) {
+				Element e = (Element) nodes.item(i);
+				if("Model".equals(e.getTagName())) return e.getAttribute("id");
 			}
 		}
+		return "";
 	}
 
-	public Model getModelFromDocument(Document document) {
-		Element e = document.getDocumentElement();
-		
-		firstRound(e);
-		
-		secondRound(e);
-		
-		Model model = (Model) this.minispecIndex.get(e.getAttribute("model"));
-				
-		return model;
-	}
-	
-	public Model getModelFromInputStream(InputStream stream) {
+	public Model getModelFromFile(File file) {
 		try {
-			// création d'une fabrique de documents
-			DocumentBuilderFactory fabrique = DocumentBuilderFactory.newInstance();
-
-			// création d'un constructeur de documents
-			DocumentBuilder constructeur = fabrique.newDocumentBuilder();
-			Document document = constructeur.parse(stream);
-			return getModelFromDocument(document);
-
-		} catch (ParserConfigurationException pce) {
-			System.out.println("Erreur de configuration du parseur DOM");
-			System.out.println("lors de l'appel à fabrique.newDocumentBuilder();");
-		} catch (SAXException se) {
-			System.out.println("Erreur lors du parsing du document");
-			System.out.println("lors de l'appel à construteur.parse(xml)");
-		} catch (IOException ioe) {
-			System.out.println("Erreur d'entrée/sortie");
-			System.out.println("lors de l'appel à construteur.parse(xml)");
-		}
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			return getModelFromDocument(dbf.newDocumentBuilder().parse(file));
+		} catch (Exception e) { e.printStackTrace(); }
 		return null;
-	}
-	
-	public Model getModelFromString(String contents) {		
-		InputStream stream = new ByteArrayInputStream(contents.getBytes());
-		return getModelFromInputStream(stream);
-	}
-	
-	public Model getModelFromFile(File file) {		
-		InputStream stream = null;
-		try {
-			stream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return getModelFromInputStream(stream);
-	}
-
-	public Model getModelFromFilenamed(String filename) {
-			File file = new File(filename);
-			return getModelFromFile(file);
 	}
 }
